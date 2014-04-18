@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Identificación de Objetos</title>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            background-color: #ffffff;
+        }
+		/*Rotar imagen horizontalmente*/
+		#foto{
+			-moz-transform: scaleX(-1);
+			-o-transform: scaleX(-1);
+			-webkit-transform: scaleX(-1);
+			transform: scaleX(-1);
+			-ms-filter: "FlipH";
+			filter: FlipH;
+		}
+    </style>
+    <script type="text/javascript">
+		//Temporizador que inica al cargar la pagina
+		var temporizador=setInterval(function(){capturarImagen();},500);
+		
+		//Función para saber si el navegador 
+		//soporta la API getUserMedia
+        function soportaUserMedia() {
+            navigator.getUserMedia = navigator.getUserMedia || // Opera
+                navigator.webkitGetUserMedia || // Chrome, Safari
+                navigator.mozGetUserMedia || // Mozilla
+                navigator.msGetUserMedia;
+            if (navigator.getUserMedia) {
+                return true
+            }
+            return false;
+        } 
+		
+        function hasURL() {
+            window.URL = window.URL || window.webkitURL
+                || window.mozURL || window.msURL;
+            if (window.URL && window.URL.createObjectURL) {
+                return true;
+            }
+            return false;
+        } 
+		
+        function error(e) {
+            alert("Fallo en la aplicación. "+e);
+        }
+		
+        function setStream(stream) {
+            var webcam = document.getElementById("webcam");
+            webcam.src = window.URL.createObjectURL(stream);
+            webcam.play();
+        }
+		
+        function onLoad () {
+            if (!soportaUserMedia() || !hasURL()) {
+                alert("Tu navegador no soporta getUserMedia()");
+            } else {
+                navigator.getUserMedia(
+                    {video: true, audio: false},
+                    setStream,
+                    error
+                );
+            }
+        } 
+		
+		function capturarImagen(){
+			var Camara, Foto, contextFoto, ancho, alto;
+			Camara = document.getElementById('webcam');
+			Foto = document.getElementById('foto');
+			ancho = 300;// Camara.width;
+			alto = 300;//Camara.height;
+			Foto.width=ancho;
+			Foto.height=alto;
+			contextFoto = Foto.getContext('2d');
+			contextFoto.drawImage(Camara, 0, 0, ancho, alto);
+			buscarHoja(contextFoto);
+			
+		}
+		
+		function buscarHoja(imagen){
+			var j=0;
+			var promePX=0;
+			var segmento= new Array();
+			//creamos un vector con los pixeles de la imagen.
+			vectImagen = imagen.getImageData(0,0,300,300);
+			for (var i=3;i<vectImagen.data.length;i+=4){
+				//Se suman todos los bytes de cada canal (RGB)
+				//Para luego sacar el promedio
+				promePX=(vectImagen.data[i-3]+vectImagen.data[i-2]+vectImagen.data[i-1])/3;
+				//Busca los pixeles más claros
+				//Trata de encontrar la retina del ojo
+				if (promePX>140 && promePX<=255){
+					//los puntos m�s claros los coloca de color rojo
+					/*vectImagen.data[i-3]=255;
+					vectImagen.data[i-2]=0;
+					vectImagen.data[i-1]=0;	*/
+					segmento[j]=i-3;
+					j++;
+					segmento[j]=i-2;
+					j++;
+					segmento[j]=i-1;
+					j++;
+				}
+			}
+			//imagen.putImageData(vectImagen, 0, 0);
+			buscarMarca(imagen,segmento);
+		}
+		
+		function buscarMarca(imagen,segmento){
+			var promePX=0;
+			var j=0;
+			//creamos un vector con los pixeles de la imagen.
+			vectImagen = imagen.getImageData(0,0,300,300);
+			for (var i=0;i<segmento.length;i+=3){
+				//Se suman todos los bytes de cada canal (RGB)
+				//Para luego sacar el promedio
+				promePX=parseInt(segmento[i-2]+segmento[i-1]+segmento[i])/3;
+				//Busca los pixeles más claros
+				//Trata de encontrar la retina del ojo
+				if (promePX>5 && promePX<=140){
+					//los puntos m�s claros los coloca de color rojo
+					j=segmento[i-2];
+					vectImagen.data[j]=0;
+					vectImagen.data[j-1]=255;
+					vectImagen.data[i]=0;			
+				}
+			}
+			imagen.putImageData(vectImagen, 0, 0);
+		}
+    </script>
+  </head>
+  <body onload="onLoad()">
+  <canvas id="foto">
+	  </canvas>
+      <video id="webcam" >
+          Tu navegador no es compatible con la etiqueta video de HTML5.
+      </video>
+	  
+  </body>
+</html>
