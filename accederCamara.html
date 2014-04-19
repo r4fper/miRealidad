@@ -76,36 +76,80 @@
 			contextFoto = Foto.getContext('2d');
 			contextFoto.drawImage(Camara, 0, 0, ancho, alto);
 			buscarHoja(contextFoto);
-			
 		}
 		
 		function buscarHoja(imagen){
 			var j=0;
 			var promePX=0;
 			var segmento= new Array();
+			var ilumina =Iluminacion(imagen);
+			var infoLuz= document.getElementById("info");
+			var intensidad=ilumina.split(':');
+			info.innerHTML=ilumina;
 			//creamos un vector con los pixeles de la imagen.
 			vectImagen = imagen.getImageData(0,0,300,300);
+			
 			for (var i=3;i<vectImagen.data.length;i+=4){
 				//Se suman todos los bytes de cada canal (RGB)
 				//Para luego sacar el promedio
 				promePX=(vectImagen.data[i-3]+vectImagen.data[i-2]+vectImagen.data[i-1])/3;
-				//Busca los pixeles más claros
-				//Trata de encontrar la retina del ojo
+				if (promePX>5 && promePX<=140){
+					//los puntos más oscuros los coloca de color verde
+					/*vectImagen.data[i-3]=0;
+					vectImagen.data[i-2]=255;
+					vectImagen.data[i-1]=0;	*/
+				}
+				//Busca los pixeles más claros (La Hoja)
+				switch (parseInt(intensidad[0])){
+					case 1:
+						if (promePX>100 && promePX<=150){
+							vectImagen.data[i-3]=255;
+							vectImagen.data[i-2]=0;
+							vectImagen.data[i-1]=0;
+						}
+						break;
+					case 2:
+						if (promePX>130 && promePX<=180){
+							vectImagen.data[i-3]=255;
+							vectImagen.data[i-2]=0;
+							vectImagen.data[i-1]=0;
+						}
+						break;
+					case 3:
+						if (promePX>160 && promePX<=210){
+							vectImagen.data[i-3]=255;
+							vectImagen.data[i-2]=0;
+							vectImagen.data[i-1]=0;
+						}
+						break;
+				}
 				if (promePX>140 && promePX<=255){
 					//los puntos m�s claros los coloca de color rojo
 					/*vectImagen.data[i-3]=255;
 					vectImagen.data[i-2]=0;
-					vectImagen.data[i-1]=0;	*/
-					segmento[j]=i-3;
-					j++;
-					segmento[j]=i-2;
-					j++;
-					segmento[j]=i-1;
-					j++;
+					vectImagen.data[i-1]=0;*/
+					/*segmento[j]=i-3;j++;
+					segmento[j]=i-2;j++;
+					segmento[j]=i-1;j++;*/
+					//Busca los pixeles más oscuros (La Marca)
+					/*while (true){
+						i+=4;
+						promePX=(vectImagen.data[i-3]+vectImagen.data[i-2]+vectImagen.data[i-1])/3;
+						if (promePX>5 && promePX<=140){
+							//los puntos más claros los coloca de color rojo
+							vectImagen.data[i-3]=0;
+							vectImagen.data[i-2]=255;
+							vectImagen.data[i-1]=0;			
+						}else{
+							break;
+						}
+					}*/
+				
 				}
+				
 			}
-			//imagen.putImageData(vectImagen, 0, 0);
-			buscarMarca(imagen,segmento);
+			imagen.putImageData(vectImagen, 0, 0);
+			//buscarMarca(imagen,segmento);
 		}
 		
 		function buscarMarca(imagen,segmento){
@@ -113,21 +157,37 @@
 			var j=0;
 			//creamos un vector con los pixeles de la imagen.
 			vectImagen = imagen.getImageData(0,0,300,300);
-			for (var i=0;i<segmento.length;i+=3){
+			for (var i=2;i<segmento.length;i+=3){
 				//Se suman todos los bytes de cada canal (RGB)
 				//Para luego sacar el promedio
-				promePX=parseInt(segmento[i-2]+segmento[i-1]+segmento[i])/3;
+				j=segmento[i];
+				promePX=(vectImagen.data[j-3]+vectImagen.data[j-2]+vectImagen.data[j-1])/3;
 				//Busca los pixeles más claros
 				//Trata de encontrar la retina del ojo
 				if (promePX>5 && promePX<=140){
 					//los puntos m�s claros los coloca de color rojo
-					j=segmento[i-2];
-					vectImagen.data[j]=0;
-					vectImagen.data[j-1]=255;
-					vectImagen.data[i]=0;			
+					vectImagen.data[j-3]=0;
+					vectImagen.data[j-2]=255;
+					vectImagen.data[j-1]=0;			
 				}
 			}
 			imagen.putImageData(vectImagen, 0, 0);
+		}
+		
+		function Iluminacion(imagen){
+			var acumula=0;
+			var puntos=0;
+			//creamos un vector con los pixeles de la imagen.
+			vectImagen = imagen.getImageData(0,0,300,300);
+			for (i=200;i<vectImagen.data.length;i+=200){
+					acumula+=vectImagen.data[i+1];puntos++;acumula+=vectImagen.data[i+5];puntos++;acumula+=vectImagen.data[i+9];puntos++;acumula+=vectImagen.data[i+13];puntos++;acumula+=vectImagen.data[i+17];puntos++;acumula+=vectImagen.data[i+21];puntos++;acumula+=vectImagen.data[i+25];puntos++;acumula+=vectImagen.data[i+29];puntos++;acumula+=vectImagen.data[i+33];puntos++;acumula+=vectImagen.data[i+37];puntos++;acumula+=vectImagen.data[i+41];puntos++;acumula+=vectImagen.data[i+45];puntos++;acumula+=vectImagen.data[i+49];puntos++;acumula+=vectImagen.data[i+53];puntos++;acumula+=vectImagen.data[i+57];puntos++;acumula+=vectImagen.data[i+61];puntos++;acumula+=vectImagen.data[i+65];puntos++;acumula+=vectImagen.data[i+69];puntos++;acumula+=vectImagen.data[i+73];puntos++;acumula+=vectImagen.data[i+77];puntos++;acumula+=vectImagen.data[i+81];puntos++;acumula+=vectImagen.data[i+85];puntos++;acumula+=vectImagen.data[i+89];puntos++;acumula+=vectImagen.data[i+93];puntos++;acumula+=vectImagen.data[i+97];puntos++;acumula+=vectImagen.data[i+101];puntos++;acumula+=vectImagen.data[i+105];puntos++;acumula+=vectImagen.data[i+109];puntos++;acumula+=vectImagen.data[i+113];puntos++;acumula+=vectImagen.data[i+117];puntos++;acumula+=vectImagen.data[i+121];puntos++;acumula+=vectImagen.data[i+125];puntos++;acumula+=vectImagen.data[i+129];puntos++;acumula+=vectImagen.data[i+133];puntos++;acumula+=vectImagen.data[i+137];puntos++;acumula+=vectImagen.data[i+141];puntos++;acumula+=vectImagen.data[i+145];puntos++;acumula+=vectImagen.data[i+149];puntos++;acumula+=vectImagen.data[i+153];puntos++;acumula+=vectImagen.data[i+157];puntos++;acumula+=vectImagen.data[i+161];puntos++;acumula+=vectImagen.data[i+165];puntos++;acumula+=vectImagen.data[i+169];puntos++;acumula+=vectImagen.data[i+173];puntos++;acumula+=vectImagen.data[i+177];puntos++;acumula+=vectImagen.data[i+181];puntos++;acumula+=vectImagen.data[i+185];puntos++;acumula+=vectImagen.data[i+189];puntos++;acumula+=vectImagen.data[i+193];puntos++;acumula+=vectImagen.data[i+197];puntos++;
+			}
+			var prome=parseInt(acumula/puntos);
+			if (prome>40 && prome<=70) return "1: "+prome;
+			if (prome>70 && prome<=100) return "2: "+prome;
+			if (prome>100 && prome<=130) return "3: "+prome;
+			if (prome>130 && prome<=160) return "4: "+prome;
+			if (prome>160) return "5: "+prome;
 		}
     </script>
   </head>
@@ -137,6 +197,6 @@
       <video id="webcam" >
           Tu navegador no es compatible con la etiqueta video de HTML5.
       </video>
-	  
+	  <div id="info"></div>
   </body>
 </html>
