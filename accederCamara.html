@@ -93,7 +93,7 @@
 					/*vectImagen.data[i-3]=255;
 					vectImagen.data[i-2]=0;
 					vectImagen.data[i-1]=0;*/
-					segmento[j]=i-3;j++;
+					segmento[j++]=i-3;
 					//segmento[j]=i-2;j++;
 					//segmento[j]=i-1;j++;
 					//promedio[j]=promePX;
@@ -106,38 +106,37 @@
 			//buscarPapel(imagen,segmento,150,150);	
 			marcarPuntos(imagen,segmento);
 		}
-		function analizar(vectImagen,segmento,vectMarcado){
+		function analizar(imagen,segmento,vectMarcado){
 			var posMarca,k,l,m;
 			var diag=0;
 			var trans=0;
 			var perp=0;
+			var satis=0;
 			var marcaEncontrada=0;
-			
+			vectImagen = imagen.getImageData(0,0,anchoImagen,altoImagen);
 			//alert(i);
-			for (var f=1;f<vectMarcado.length;f++){
+			for (var f=0;f<vectMarcado.length;f++){
 				var i=vectMarcado[f];
-				k=i+40;l=k;m=k; //inician 5px más abajo
-				if (dentroSegmento(segmento,k)==1){
-				for (var j=1;j<100;j++){
+				k=m;l=m;m=i+(anchoImagen*10); //inician 5px más abajo
+				//resp=dentroSegmento(segmento,k);
+				//if (resp==1){
+				for (var j=1;j<200;j++){
 					var satis=diag+trans+perp;
-					
 						if (satis==3){
 							alert(1);
 						}else{
-							k= k+499; //Diagonal
-							l= l+501; //Transversal
+							//k= k+499; //Diagonal
+							//l= l+501; //Transversal
 							m= m+500; //Perpendicular
-							if (vectImagen.data[k]<141) vectImagen.data[k]=255;//diag=1;
-							if (vectImagen.data[l]<141) vectImagen.data[l]=255;//trans=1;
+							//if (vectImagen.data[k]<141) vectImagen.data[k]=255;//diag=1;
+							//if (vectImagen.data[l]<141) vectImagen.data[l]=255;//trans=1;
 							if (vectImagen.data[m]<141) vectImagen.data[m]=255;//perp=1;
-							
 						}
-					
-				}
+				//}
 				}
 			}
-			return 0;
 			
+			imagen.putImageData(vectImagen, 0, 0);
 		}
 		function dentroSegmento(segmento,valor){
 			for (var i=0;i<segmento.length;i++){
@@ -170,18 +169,17 @@
 		function marcarPuntos(imagen,segmento){
 			var vectMarcado= new Array();
 			var k=0;
-			var resp=0;
 			vectImagen = imagen.getImageData(0,0,anchoImagen,altoImagen);
-			for (var i=1;i<segmento.length;i++){
+			for (var i=0;i<segmento.length;i++){
 				var j=segmento[i];
-				if (vectImagen.data[j+4]<141) {vectImagen.data[j+4]=0;vectImagen.data[j+5]=255;vectImagen.data[j+6]=0;vectMarcado[k++]=j+4;} 
-				if (vectImagen.data[j+8]<141) {vectImagen.data[j+8]=0;vectImagen.data[j+9]=255;vectImagen.data[j+10]=0;vectMarcado[k++]=j+8;}
-				if (vectImagen.data[j+12]<141) {vectImagen.data[j+12]=0;vectImagen.data[j+13]=255;vectImagen.data[j+14]=0;vectMarcado[k++]=j+12;}
-				if (vectImagen.data[j+16]<141) {vectImagen.data[j+16]=0;vectImagen.data[j+17]=255;vectImagen.data[j+18]=0;vectMarcado[k++]=j+16;}
-				if (vectImagen.data[j+20]<141) {vectImagen.data[j+20]=0;vectImagen.data[j+21]=255;vectImagen.data[j+22]=0;vectMarcado[k++]=j+20;}
+				if (vectImagen.data[j+4]<141) vectMarcado[k++]=j+4; //{vectImagen.data[j+4]=0;vectImagen.data[j+5]=255;vectImagen.data[j+6]=0;vectMarcado[k++]=j+4;} 
+				if (vectImagen.data[j+8]<141) vectMarcado[k++]=j+8; //{vectImagen.data[j+8]=0;vectImagen.data[j+9]=255;vectImagen.data[j+10]=0;vectMarcado[k++]=j+8;}
+				if (vectImagen.data[j+12]<141) vectMarcado[k++]=j+12; //{vectImagen.data[j+12]=0;vectImagen.data[j+13]=255;vectImagen.data[j+14]=0;vectMarcado[k++]=j+12;}
+				if (vectImagen.data[j+16]<141) vectMarcado[k++]=j+16; //{vectImagen.data[j+16]=0;vectImagen.data[j+17]=255;vectImagen.data[j+18]=0;vectMarcado[k++]=j+16;}
+				if (vectImagen.data[j+20]<141) vectMarcado[k++]=j+20; //{vectImagen.data[j+20]=0;vectImagen.data[j+21]=255;vectImagen.data[j+22]=0;vectMarcado[k++]=j+20;}
 			}
 			//imagen.putImageData(vectImagen, 0, 0);
-			analizar(vectImagen,segmento,vectMarcado);
+			analizar(imagen,segmento,vectMarcado);
 		}
 		function buscarMarca(imagen,segmento){
 			var promePX=0;
